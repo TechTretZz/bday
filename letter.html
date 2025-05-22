@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Letter for  Shiny </title>
+    <style>
+        /* --- Basic Page Styles --- */
+        body {
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8d7e3, #e6e6fa 70%);
+            font-family: sans-serif;
+            overflow: hidden; /* Hide body scroll initially */
+        }
+
+        /* --- Envelope Wrapper --- */
+        .envelope-wrapper {
+            perspective: 1000px;
+            position: relative; /* Changed to relative for transform */
+            z-index: 10;
+            /* Add transitions for moving/fading the wrapper */
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out, visibility 0s 0.5s;
+            opacity: 1;
+            visibility: visible;
+            transform: translate(0, 0); /* Initial position */
+        }
+        /* State when letter is open: Move wrapper away */
+        body.letter-open .envelope-wrapper {
+            transform: translateY(-150%) scale(0.7); /* Move way up and shrink */
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition-delay: 0s; /* Move immediately when opening */
+        }
+
+
+        /* --- The Envelope (inside wrapper) --- */
+        .envelope {
+            position: relative; /* Keep relative within wrapper */
+            width: 300px; height: 190px;
+            background-color: #f7f0e3;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transform-style: preserve-3d;
+            z-index: 1; /* Z-index relative to wrapper */
+             /* Remove individual transitions, wrapper handles hiding */
+             /* transition: ... */
+        }
+        .envelope:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            /* Keep hover transform simple */
+            /* transform: translateY(-5px); */
+        }
+
+        /* --- Envelope Body & Flap --- */
+        .envelope .body {
+            position: absolute; bottom: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #f7f0e3;
+            border-radius: 5px;
+            z-index: 1;
+        }
+        .envelope .flap {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100px;
+            background-color: #efdec7;
+            border-top-left-radius: 5px; border-top-right-radius: 5px;
+            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+            transform-origin: top center;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 3;
+        }
+        /* Flap opens instantly */
+        body.letter-open .envelope .flap {
+             transform: rotateX(180deg);
+             transition-delay: 0s;
+        }
+
+        /* --- The Letter (Initial State relative to envelope) --- */
+        .letter {
+            /* IMPORTANT: Change position to FIXED immediately */
+            position: fixed;
+             /* Start centered where envelope *was* but small/invisible */
+             top: 50%; left: 50%;
+             /* Calculate initial small size relative to viewport, maybe based on envelope size */
+             width: 300px;
+             height: 190px;
+             transform: translate(-50%, -50%) scale(0.5); /* Center, start small */
+
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            box-sizing: border-box;
+            opacity: 0;
+            visibility: hidden;
+            /* Define all transitions - focusing on fixed position changes */
+            transition: opacity 0.5s 0.1s ease-out, transform 0.5s 0.1s ease-in-out,
+                        visibility 0s 0.6s, /* Hide only after close animation */
+                        top 0.5s 0.1s ease-in-out, left 0.5s 0.1s ease-in-out,
+                        width 0.5s 0.1s ease-in-out, height 0.5s 0.1s ease-in-out,
+                        padding 0.5s 0.1s ease-in-out, border-radius 0.5s 0.1s ease-in-out;
+            z-index: 100; /* High z-index */
+            overflow: hidden; /* Hide overflow initially */
+            font-family: 'Georgia', serif;
+            line-height: 1.7;
+            color: #333;
+        }
+        /* Letter open state */
+        body.letter-open .letter {
+            /* Expand to full screen */
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+             transform: translate(0, 0) scale(1); /* Full size, no offset */
+            opacity: 1;
+            visibility: visible;
+            padding: 40px;
+            overflow-y: auto; /* Allow scroll */
+            border-radius: 0;
+            /* Shorten delay for becoming visible */
+             transition: opacity 0.5s 0.2s ease-out, transform 0.5s 0.2s ease-in-out,
+                         visibility 0s 0.2s, /* Visible sooner */
+                         top 0.5s 0.1s ease-in-out, left 0.5s 0.1s ease-in-out,
+                         width 0.5s 0.1s ease-in-out, height 0.5s 0.1s ease-in-out,
+                         padding 0.5s 0.1s ease-in-out, border-radius 0.5s 0.1s ease-in-out;
+
+        }
+
+
+        /* --- Letter Content Styling --- */
+        .letter h1 {
+            font-family: 'Arial', sans-serif; color: #483D8B; text-align: center;
+            font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            transition: font-size 0.5s 0.3s ease-in-out;
+        }
+        .letter p {
+            margin-bottom: 1em; font-size: 0.95em;
+            transition: font-size 0.5s 0.3s ease-in-out;
+        }
+        .letter .signature {
+            text-align: right; margin-top: 25px; font-style: italic;
+        }
+
+        /* --- Close Button Styling --- */
+        .close-letter {
+            position: fixed; /* Fixed position relative to viewport */
+            top: 10px; right: 15px;
+            background: none; border: none;
+            font-size: 28px; font-weight: bold;
+            color: #aaa; cursor: pointer;
+            padding: 5px; line-height: 1;
+            z-index: 105; /* Above letter content */
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.3s 0.7s ease-in-out, visibility 0s 1s; /* Appear after letter expands */
+        }
+        body:not(.letter-open) .close-letter {
+             transition: opacity 0.2s ease-out, visibility 0s 0.2s; /* Disappear quickly */
+        }
+        body.letter-open .close-letter {
+             opacity: 1; visibility: visible;
+        }
+        .close-letter:hover { color: #555; }
+
+
+        /* Optional: Adjust text size for full screen */
+        body.letter-open .letter h1 { font-size: 2em; }
+        body.letter-open .letter p { font-size: 1em; }
+
+         /* Allow body scrolling only when letter is full screen */
+         body.letter-open {
+             overflow: auto;
+         }
+
+    </style>
+</head>
+<body>
+
+    <!-- Wrapper now handles hiding/showing the envelope -->
+    <div class="envelope-wrapper" id="envelopeWrapper">
+        <div class="envelope" id="envelope">
+            <div class="flap"></div>
+            <div class="body"></div>
+            <!-- Letter is now outside envelope structure for positioning -->
+        </div>
+    </div>
+
+    <!-- Letter is now a sibling for easier fixed positioning -->
+    <div class="letter" id="letterContent">
+        <!-- Close Button -->
+        <button class="close-letter" id="closeButton" title="Close Letter">×</button>
+
+        <!-- Letter Content Starts -->
+        <h1>Dearest  Nithya,</h1>
+        <p>
+            Happiest Birthday Shinyyyyyyyyyyy!!!!💫
+        </p>
+        <p>
+            You are the most beautiful soul in this planet .  I am so grateful to have you in my life . You are the best friend I could ever ask for . 
+            You are the most kindest, sweetest and most loving person I have ever met . You are a true gem . You were always with me in my ups and downs .
+            You are the best thearapist I could ever ask for . You are the best listener and the best advisor . I wish I could listened to your advice since begining .
+            Thank you is not enough for all the things you have done for me . You have written a para on my bday for me .
+            After reading that I was in tears . I was so touched by your words . You are the person who always wanted me to do better and better . 
+            You are one of the best motivator and always pushed me to do better . I am sorry at the times I was speaking to you in a rude way .
+            I regret all the times I was rude to you . I wish I was as mentally strong as you are . Even though you are a girl you have gone through a lot of things in life .
+            And adapted to all the situations . You are a true warrior . Hope we can be together for a long time and make more memories together .
+            I will always be there for you no matter what . I will always support you in all your decisions .
+            I will always be your biggest fan . I will always be there to cheer you up . I am running out of words to express my feelings for you .
+            I dont know how long did god took to create an angel like you . 
+        </p>
+         
+        <p>
+            Never stop being the incredible person you are !
+        </p>
+        <div class="signature">
+            With lots of love,<br>
+            [Sarvan]
+        </div>
+        <!-- Letter Content Ends -->
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const envelopeWrapper = document.getElementById('envelopeWrapper');
+            const envelope = document.getElementById('envelope'); // Still needed maybe for hover?
+            const closeButton = document.getElementById('closeButton');
+            const letterContent = document.getElementById('letterContent');
+            const body = document.body;
+
+            // --- Open Envelope ---
+            envelopeWrapper.addEventListener('click', (event) => {
+                 // Prevent opening if clicking on something inside that stops propagation (like close button if it were inside)
+                 if (event.target === envelopeWrapper || envelope.contains(event.target)) {
+                     if (!body.classList.contains('letter-open')) {
+                         body.classList.add('letter-open'); // Trigger animations via body class
+                         // Scroll letter to top when opened
+                         requestAnimationFrame(() => {
+                             setTimeout(() => { letterContent.scrollTop = 0; }, 100); // Short delay
+                         });
+                     }
+                 }
+            });
+
+            // --- Close Letter ---
+            closeButton.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent wrapper click event
+                body.classList.remove('letter-open'); // Trigger close animations
+            });
+        });
+    </script>
+
+</body>
+</html>

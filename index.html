@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Shiny!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="cake-wrapper">
+            <!-- Invisible background ring -->
+            <div class="rotating-background-ring"></div>
+
+            <!-- SVG Container for the rotating text -->
+            <svg class="rotating-text-svg" viewBox="-200 -200 400 400">
+                <path id="textCirclePath"
+                      d="M 0 -180 A 180 180 0 1 1 0 179.99 Z"
+                      fill="none" stroke="none" />
+                <text class="rotating-text" dy="-5">
+                    <textPath xlink:href="#textCirclePath" startOffset="0%">
+                        HAPPY BIRTHDAY SHINY
+                    </textPath>
+                </text>
+            </svg>
+
+            <!-- Link wrapping the Cake Image -->
+            <a href="letter.html" target="_self" class="cake-link"> <!-- target="_self" opens in the same tab -->
+                <img src="images/ max.jpg" alt="Click for Birthday Letter" id="cake-image" class="cake-image">
+            </a>
+
+        </div>
+        <div class="message">
+            <h1>Click on Max for a surprise ....! </h1>
+             
+    </div>
+
+    <!-- Simple element for interactivity feedback (still here, but click now navigates) -->
+    <div id="sparkle-effect" class="sparkle-effect">✨🎂✨</div>
+    
+
+    <script src="script.js"></script>
+</body>
+</html>
